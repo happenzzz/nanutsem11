@@ -173,27 +173,21 @@
     }
 
     .next-step-circle {
-      width: clamp(46px, 3.25vw, 64px);
-      height: clamp(46px, 3.25vw, 64px);
+      width: clamp(18px, 1.15vw, 24px);
+      height: clamp(18px, 1.15vw, 24px);
       border-radius: 50%;
-      background: radial-gradient(circle at 32% 28%, #efffd0 0 18%, #b7f26a 35%, #7bd940 100%);
-      border: clamp(3px, .25vw, 5px) solid #fff;
-      box-shadow: 0 7px 0 rgba(61,145,30,.24), 0 12px 20px rgba(37,62,104,.14);
+      background: #bbed7d;
+      border: 0;
+      box-shadow: none;
       position: relative;
       touch-action: manipulation;
-      transition: transform .12s ease, filter .12s ease;
+      opacity: .72;
+      transition: transform .12s ease, opacity .12s ease;
     }
 
-    .next-step-circle::after {
-      content: "";
-      position: absolute;
-      inset: 25%;
-      border-radius: 50%;
-      background: rgba(255,255,255,.50);
-      transform: translate(-13%, -13%);
-    }
+    .next-step-circle::after { display: none; }
 
-    .next-step-circle:active { transform: translateY(2px); }
+    .next-step-circle:active { transform: scale(.92); opacity: 1; }
 
     .next-step-pop {
       display: none;
@@ -548,6 +542,13 @@
 
     .drag-ghost { transform: scale(1.12) rotate(-5deg); filter: drop-shadow(0 16px 18px rgba(0,0,0,.18)); }
     .fly-ghost { filter: drop-shadow(0 16px 18px rgba(0,0,0,.18)); }
+
+    .activity:fullscreen .drag-ghost,
+    .activity:fullscreen .fly-ghost,
+    .activity:-webkit-full-screen .drag-ghost,
+    .activity:-webkit-full-screen .fly-ghost {
+      z-index: 2147483647;
+    }
 
     .big-bubble {
       position: fixed;
@@ -995,7 +996,7 @@
               ghost.style.height = `${element.offsetHeight}px`;
               ghost.style.left = `${moveEvent.clientX - element.offsetWidth / 2}px`;
               ghost.style.top = `${moveEvent.clientY - element.offsetHeight / 2}px`;
-              document.body.appendChild(ghost);
+              getOverlayRoot().appendChild(ghost);
               element.classList.add("is-being-dragged");
               highlightDropTargets(true);
             }
@@ -1292,6 +1293,10 @@
         $("#nextStepPop")?.classList.remove("show");
       }
 
+      function getOverlayRoot() {
+        return document.fullscreenElement || document.webkitFullscreenElement || $(".activity") || document.body;
+      }
+
       function getAutoBatches(strategy) {
         if (strategy === "one") {
           return [0,1,2,0,1,2,0,1,2,0,1,2].map((target) => [target]);
@@ -1329,7 +1334,7 @@
         clone.style.top = `${from.top}px`;
         clone.style.width = `${from.width}px`;
         clone.style.height = `${from.height}px`;
-        document.body.appendChild(clone);
+        getOverlayRoot().appendChild(clone);
         element.style.opacity = ".18";
 
         const spread = total === 1 ? 0 : (index - (total - 1) / 2) * Math.min(42, to.width * .12);
